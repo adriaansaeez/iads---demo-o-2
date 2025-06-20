@@ -150,17 +150,10 @@ const CreateAdPage = ({ user, onLogout }) => {
     }
   }
 
-  const resetForm = () => {
+  const generateNewAd = () => {
     setGeneratedAd(null)
-    setFormData({
-      brandName: '',
-      productDescription: '',
-      targetAudience: '',
-      adStyle: '',
-      imageSize: '1024x1024',
-      additionalInstructions: ''
-    })
-    setSelectedImages([])
+    setError('')
+    // Mantener el formulario para generar una nueva variación
   }
 
   return (
@@ -182,9 +175,9 @@ const CreateAdPage = ({ user, onLogout }) => {
                 <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
-                                 <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                   iAds
-                 </span>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  iAds
+                </span>
               </div>
             </div>
 
@@ -221,326 +214,266 @@ const CreateAdPage = ({ user, onLogout }) => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {!generatedAd ? (
-          <>
-            {/* Header Section */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Crear Nuevo Anuncio
-              </h1>
-              <p className="text-gray-600">
-                Completa la información para generar un anuncio único con IA
-              </p>
-            </div>
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Crear Nuevo Anuncio
+          </h1>
+          <p className="text-gray-600">
+            Completa la información y ve el resultado en tiempo real
+          </p>
+        </div>
 
-            {/* Form */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {error && (
-                  <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2">
-                    <AlertCircle className="h-5 w-5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                {/* Brand Name */}
-                <div>
-                  <label htmlFor="brandName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre de la Marca *
-                  </label>
-                  <input
-                    type="text"
-                    id="brandName"
-                    name="brandName"
-                    value={formData.brandName}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Ej: Nike, Apple, Coca-Cola..."
-                    required
-                  />
+        {/* Two Column Layout */}
+        <div className="grid lg:grid-cols-2 gap-8 min-h-[600px]">
+          {/* Left Column - Form */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-fit">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Información del Anuncio
+            </h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2">
+                  <AlertCircle className="h-5 w-5" />
+                  <span>{error}</span>
                 </div>
+              )}
 
-                {/* Product Description */}
-                <div>
-                  <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción del Producto *
-                  </label>
-                  <textarea
-                    id="productDescription"
-                    name="productDescription"
-                    rows={4}
-                    value={formData.productDescription}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Describe tu producto o servicio en detalle. Incluye características clave, beneficios y lo que lo hace especial..."
-                    required
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Sé específico. Esta información se usará para generar el prompt del anuncio.
-                  </p>
-                </div>
-
-                {/* Target Audience */}
-                <div>
-                  <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
-                    Público Objetivo *
-                  </label>
-                  <select
-                    id="targetAudience"
-                    name="targetAudience"
-                    value={formData.targetAudience}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    required
-                  >
-                    <option value="">Selecciona tu público objetivo</option>
-                    {targetAudiences.map((audience) => (
-                      <option key={audience} value={audience}>
-                        {audience}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Ad Style */}
-                <div>
-                  <label htmlFor="adStyle" className="block text-sm font-medium text-gray-700 mb-2">
-                    Estilo del Anuncio *
-                  </label>
-                  <select
-                    id="adStyle"
-                    name="adStyle"
-                    value={formData.adStyle}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    required
-                  >
-                    <option value="">Selecciona el estilo visual</option>
-                    {adStyles.map((style) => (
-                      <option key={style} value={style}>
-                        {style}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Image Size */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Tamaño de Imagen
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {imageSizes.map((size) => (
-                      <label
-                        key={size.value}
-                        className={`relative flex cursor-pointer rounded-lg border p-4 focus:outline-none ${
-                          formData.imageSize === size.value
-                            ? 'border-blue-600 ring-2 ring-blue-600'
-                            : 'border-gray-300'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="imageSize"
-                          value={size.value}
-                          checked={formData.imageSize === size.value}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                        />
-                        <div className="flex flex-col flex-1">
-                          <span className="block text-sm font-medium text-gray-900">
-                            {size.label}
-                          </span>
-                          <span className="text-sm text-gray-500">{size.price}</span>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Image Upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Imágenes del Producto (Opcional)
-                  </label>
-                  <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
-                    <div className="space-y-1 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="flex text-sm text-gray-600">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                        >
-                          <span>Subir archivos</span>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            className="sr-only"
-                            multiple
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                        <p className="pl-1">o arrastra y suelta</p>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, GIF hasta 10MB
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Preview uploaded images */}
-                  {selectedImages.length > 0 && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {selectedImages.map((image) => (
-                        <div key={image.id} className="relative">
-                          <img
-                            src={image.preview}
-                            alt={image.name}
-                            className="h-24 w-full object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(image.id)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Additional Instructions */}
-                <div>
-                  <label htmlFor="additionalInstructions" className="block text-sm font-medium text-gray-700 mb-2">
-                    Instrucciones Adicionales (Opcional)
-                  </label>
-                  <textarea
-                    id="additionalInstructions"
-                    name="additionalInstructions"
-                    rows={3}
-                    value={formData.additionalInstructions}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Cualquier detalle específico que quieras incluir en el anuncio..."
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-6">
-                  <button
-                    type="submit"
-                    disabled={isGenerating}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader className="h-5 w-5 animate-spin" />
-                        <span>Generando anuncio...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="h-5 w-5" />
-                        <span>Generar Anuncio con IA</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        ) : (
-          // Generated Ad Result
-          <div className="space-y-8">
-            {/* Success Header */}
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <CheckCircle className="h-16 w-16 text-green-500" />
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                ¡Anuncio Generado Exitosamente!
-              </h1>
-              <p className="text-gray-600">
-                Tu anuncio está listo para descargar y usar
-              </p>
-            </div>
-
-            {/* Generated Ad Display */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-              <div className="text-center mb-6">
-                <img
-                  src={generatedAd.imageUrl}
-                  alt={`Anuncio para ${formData.brandName}`}
-                  className="mx-auto rounded-lg shadow-lg max-w-md w-full"
+              {/* Brand Name */}
+              <div>
+                <label htmlFor="brandName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre de la Marca *
+                </label>
+                <input
+                  type="text"
+                  id="brandName"
+                  name="brandName"
+                  value={formData.brandName}
+                  onChange={handleInputChange}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Ej: Nike, Apple, Coca-Cola..."
+                  required
                 />
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Detalles del Anuncio
-                  </h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>Marca:</strong> {formData.brandName}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>Público:</strong> {formData.targetAudience}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>Estilo:</strong> {formData.adStyle}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Tamaño:</strong> {formData.imageSize}
-                    </p>
+              {/* Product Description */}
+              <div>
+                <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Descripción del Producto *
+                </label>
+                <textarea
+                  id="productDescription"
+                  name="productDescription"
+                  rows={4}
+                  value={formData.productDescription}
+                  onChange={handleInputChange}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Describe tu producto o servicio en detalle..."
+                  required
+                />
+              </div>
+
+              {/* Target Audience */}
+              <div>
+                <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
+                  Público Objetivo *
+                </label>
+                <select
+                  id="targetAudience"
+                  name="targetAudience"
+                  value={formData.targetAudience}
+                  onChange={handleInputChange}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  required
+                >
+                  <option value="">Selecciona tu público objetivo</option>
+                  {targetAudiences.map((audience) => (
+                    <option key={audience} value={audience}>
+                      {audience}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Ad Style */}
+              <div>
+                <label htmlFor="adStyle" className="block text-sm font-medium text-gray-700 mb-2">
+                  Estilo del Anuncio *
+                </label>
+                <select
+                  id="adStyle"
+                  name="adStyle"
+                  value={formData.adStyle}
+                  onChange={handleInputChange}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  required
+                >
+                  <option value="">Selecciona el estilo visual</option>
+                  {adStyles.map((style) => (
+                    <option key={style} value={style}>
+                      {style}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Image Size */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Tamaño de Imagen
+                </label>
+                <div className="space-y-2">
+                  {imageSizes.map((size) => (
+                    <label
+                      key={size.value}
+                      className={`relative flex cursor-pointer rounded-lg border p-3 focus:outline-none ${
+                        formData.imageSize === size.value
+                          ? 'border-blue-600 ring-2 ring-blue-600'
+                          : 'border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="imageSize"
+                        value={size.value}
+                        checked={formData.imageSize === size.value}
+                        onChange={handleInputChange}
+                        className="sr-only"
+                      />
+                      <div className="flex flex-1 items-center justify-between">
+                        <span className="text-sm font-medium text-gray-900">
+                          {size.label}
+                        </span>
+                        <span className="text-sm text-gray-500">{size.price}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional Instructions */}
+              <div>
+                <label htmlFor="additionalInstructions" className="block text-sm font-medium text-gray-700 mb-2">
+                  Instrucciones Adicionales (Opcional)
+                </label>
+                <textarea
+                  id="additionalInstructions"
+                  name="additionalInstructions"
+                  rows={3}
+                  value={formData.additionalInstructions}
+                  onChange={handleInputChange}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Cualquier detalle específico..."
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isGenerating}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader className="h-5 w-5 animate-spin" />
+                    <span>Generando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="h-5 w-5" />
+                    <span>Generar Anuncio</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Right Column - Preview */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Vista Previa del Anuncio
+            </h2>
+
+            {!generatedAd && !isGenerating ? (
+              // Empty State
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                  <ImageIcon className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Tu anuncio aparecerá aquí
+                </h3>
+                <p className="text-gray-500 max-w-sm">
+                  Completa el formulario de la izquierda y haz clic en "Generar Anuncio" para ver el resultado.
+                </p>
+              </div>
+            ) : isGenerating ? (
+              // Loading State
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-6">
+                  <Loader className="h-8 w-8 text-white animate-spin" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Generando tu anuncio...
+                </h3>
+                <p className="text-gray-600 text-sm max-w-sm">
+                  Nuestro sistema de IA está creando el anuncio perfecto para tu marca.
+                </p>
+              </div>
+            ) : (
+              // Generated Ad Display
+              <div className="space-y-6">
+                <div className="text-center">
+                  <img
+                    src={generatedAd.imageUrl}
+                    alt={`Anuncio para ${formData.brandName}`}
+                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                  />
+                </div>
+
+                {/* Ad Details */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">Detalles:</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Marca:</span>
+                      <span className="font-medium">{formData.brandName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Estilo:</span>
+                      <span className="font-medium">{formData.adStyle}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tamaño:</span>
+                      <span className="font-medium">{formData.imageSize}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="space-y-3">
                   <button
                     onClick={downloadImage}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                   >
                     <Download className="h-5 w-5" />
                     <span>Descargar Anuncio</span>
                   </button>
                   
                   <button
-                    onClick={resetForm}
-                    className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
+                    onClick={generateNewAd}
+                    className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <Wand2 className="h-5 w-5" />
-                    <span>Crear Otro Anuncio</span>
+                    <span>Generar Nueva Variación</span>
                   </button>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Loading State */}
-        {isGenerating && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                  <Loader className="h-8 w-8 text-white animate-spin" />
-                </div>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Generando tu anuncio...
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Esto puede tomar unos segundos. ¡La espera valdrá la pena!
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
       </main>
     </div>
   )

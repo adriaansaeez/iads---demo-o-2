@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -21,6 +21,9 @@ body {
   min-height: 100vh;
   background-color: #f9fafb;
   color: #1f2937;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scrollbar personalizada */
@@ -102,6 +105,27 @@ select:focus {
 /* Mejorar contraste para accesibilidad */
 .text-high-contrast {
   color: #111827;
+}
+
+/* Tipografía estilo Apple */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.font-apple-title {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.font-apple-body {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.font-apple-caption {
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 /* Efectos de hover para cards */
