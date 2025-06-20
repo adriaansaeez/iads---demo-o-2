@@ -128,7 +128,7 @@ const RegisterPage = ({ onLogin }) => {
             Crea tu cuenta gratuita
           </h2>
           <p className="text-gray-600">
-            Únete a miles de usuarios creando anuncios increíbles con IA
+            Únete a miles de usuarios creando anuncios increíbles con iAds
           </p>
         </div>
 

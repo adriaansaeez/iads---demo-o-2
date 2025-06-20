@@ -9,11 +9,9 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
+
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AdGenius AI
+                iAds
               </span>
             </div>
             <div className="flex items-center space-x-4">
@@ -66,25 +64,156 @@ const LandingPage = () => {
               <span>Crear mi primer anuncio</span>
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <button className="text-gray-700 hover:text-blue-600 transition-colors flex items-center space-x-2">
-              <span>Ver demo</span>
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            </button>
           </div>
 
-          {/* Demo Preview */}
+          {/* Ejemplos de Anuncios Generados */}
           <div className="relative">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl mx-auto border border-gray-200/20">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl h-64 flex items-center justify-center">
-                <div className="text-center">
-                  <Target className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Vista previa del anuncio generado</p>
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Anuncios creados con iAds
+              </h3>
+              <p className="text-gray-600">
+                Ejemplos reales generados por nuestra IA
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              {/* Anuncio 1 - Sneakers */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio sneakers modernos"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-blue-600">Deportes</span>
+                    <span className="text-xs text-gray-500">Cuadrado</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Estilo moderno</p>
+                </div>
+              </div>
+
+              {/* Anuncio 2 - Luxury Watch */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio reloj de lujo"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-purple-600">Lujo</span>
+                    <span className="text-xs text-gray-500">Horizontal</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Elegante</p>
+                </div>
+              </div>
+
+              {/* Anuncio 3 - Coffee */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio café artesanal"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-amber-600">Café</span>
+                    <span className="text-xs text-gray-500">Vertical</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Natural</p>
+                </div>
+              </div>
+
+              {/* Anuncio 4 - Beauty */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio productos belleza"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-pink-600">Belleza</span>
+                    <span className="text-xs text-gray-500">Cuadrado</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Minimalista</p>
                 </div>
               </div>
             </div>
+
+            {/* Segunda fila de ejemplos */}
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-6">
+              {/* Anuncio 5 - Car */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio automóvil premium"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-600">Automotriz</span>
+                    <span className="text-xs text-gray-500">Horizontal</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Futurista</p>
+                </div>
+              </div>
+
+              {/* Anuncio 6 - Travel */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio viajes exóticos"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-teal-600">Viajes</span>
+                    <span className="text-xs text-gray-500">Vertical</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Aventura</p>
+                </div>
+              </div>
+
+              {/* Anuncio 7 - Tech */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/20 transform hover:scale-105 transition-all duration-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400&h=500&fit=crop&crop=center" 
+                  alt="Anuncio gadgets tech"
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-indigo-600">Tech</span>
+                    <span className="text-xs text-gray-500">Cuadrado</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Moderno</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats de los ejemplos */}
+            <div className="mt-8 flex justify-center space-x-8 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">15s</div>
+                <div className="text-sm text-gray-600">Tiempo promedio</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">4K+</div>
+                <div className="text-sm text-gray-600">Anuncios creados</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">98%</div>
+                <div className="text-sm text-gray-600">Satisfacción</div>
+              </div>
+            </div>
+
             {/* Floating elements */}
             <div className="absolute -top-4 -left-4 w-8 h-8 bg-blue-500 rounded-full animate-bounce"></div>
             <div className="absolute -bottom-4 -right-4 w-6 h-6 bg-purple-500 rounded-full animate-bounce delay-1000"></div>
+            <div className="absolute top-1/2 -right-8 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
           </div>
         </div>
       </section>
@@ -155,17 +284,14 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
+      <footer className="bg-gray-900 text-gray-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">AdGenius AI</span>
+              <span className="text-lg font-bold text-white">iAds</span>
             </div>
             <div className="text-sm text-gray-400">
-              © 2024 AdGenius AI. Todos los derechos reservados.
+              © 2024 iAds. Todos los derechos reservados.
             </div>
           </div>
         </div>

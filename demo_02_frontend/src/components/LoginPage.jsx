@@ -169,9 +169,9 @@ const LoginPage = ({ onLogin }) => {
         </div>
 
         {/* Demo credentials */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
           <p className="text-sm text-yellow-800">
-            <strong>Demo:</strong> Usa cualquier email y contraseña para probar la aplicación
+            <strong>Demo:</strong> Usa cualquier email y contraseña para probar iAds
           </p>
         </div>
       </div>

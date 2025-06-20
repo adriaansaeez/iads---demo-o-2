@@ -1,4 +1,4 @@
-# AdGenius AI - Frontend
+# iAds - Frontend
 
 Una aplicación web moderna para generar anuncios visuales únicos usando inteligencia artificial.
 
@@ -146,4 +146,4 @@ La aplicación puede desplegarse en:
 
 ---
 
-**Desarrollado con ❤️ para AdGenius AI**
+**Desarrollado con ❤️ para iAds**
