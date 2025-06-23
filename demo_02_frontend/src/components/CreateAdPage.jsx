@@ -3,157 +3,113 @@ import { Link } from 'react-router-dom'
 import { 
   Sparkles, 
   ArrowLeft, 
-  Upload, 
-  X, 
-  Wand2, 
   Download,
   User,
   LogOut,
   Loader,
   CheckCircle,
   AlertCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Wand2
 } from 'lucide-react'
+import CreateAdWizard from './CreateAdWizard'
+import AdService from '../services/adService'
 
 const CreateAdPage = ({ user, onLogout }) => {
-  const [formData, setFormData] = useState({
-    brandName: '',
-    productDescription: '',
-    targetAudience: '',
-    adStyle: '',
-    imageSize: '1024x1024',
-    additionalInstructions: ''
-  })
-  
-  const [selectedImages, setSelectedImages] = useState([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
   const [generatedAd, setGeneratedAd] = useState(null)
   const [error, setError] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [generationStep, setGenerationStep] = useState('')
 
-  // Opciones preconfiguradas
-  const targetAudiences = [
-    'Jóvenes (18-25 años)',
-    'Adultos jóvenes (25-35 años)',
-    'Profesionales (30-45 años)',
-    'Familias con niños',
-    'Seniors (55+ años)',
-    'Estudiantes universitarios',
-    'Emprendedores',
-    'Público general'
-  ]
-
-  const adStyles = [
-    'Moderno y minimalista',
-    'Elegante y sofisticado',
-    'Colorido y vibrante',
-    'Profesional y corporativo',
-    'Juvenil y dinámico',
-    'Vintage y retro',
-    'Futurista y tecnológico',
-    'Natural y orgánico'
-  ]
-
-  const imageSizes = [
-    { value: '1024x1024', label: 'Cuadrado (1024x1024)', price: '$0.04' },
-    { value: '1792x1024', label: 'Horizontal (1792x1024)', price: '$0.08' },
-    { value: '1024x1792', label: 'Vertical (1024x1792)', price: '$0.08' },
-  ]
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-    if (error) setError('')
-  }
-
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          setSelectedImages(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            file,
-            preview: event.target.result,
-            name: file.name
-          }])
-        }
-        reader.readAsDataURL(file)
-      }
-    })
-  }
-
-  const removeImage = (imageId) => {
-    setSelectedImages(prev => prev.filter(img => img.id !== imageId))
-  }
-
-  const validateForm = () => {
-    if (!formData.brandName.trim()) {
-      setError('El nombre de la marca es requerido')
-      return false
-    }
-    if (!formData.productDescription.trim()) {
-      setError('La descripción del producto es requerida')
-      return false
-    }
-    if (!formData.targetAudience) {
-      setError('Selecciona un público objetivo')
-      return false
-    }
-    if (!formData.adStyle) {
-      setError('Selecciona un estilo de anuncio')
-      return false
-    }
-    return true
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateForm()) return
-
+  const handleAdGenerated = async (formData) => {
     setIsGenerating(true)
     setError('')
+    setGenerationStep('Iniciando análisis de marca...')
 
     try {
-      // Aquí irá la llamada a la API cuando esté lista
-      // Simulamos el proceso de generación
-      setTimeout(() => {
-        const mockGeneratedAd = {
-          id: Date.now(),
-          prompt: `Anuncio profesional para ${formData.brandName}: ${formData.productDescription}. Dirigido a ${formData.targetAudience} con estilo ${formData.adStyle}.`,
-          imageUrl: `https://picsum.photos/seed/${Date.now()}/1024/1024`, // Imagen placeholder
-          size: formData.imageSize,
-          createdAt: new Date().toISOString()
-        }
-        
-        setGeneratedAd(mockGeneratedAd)
-        setIsGenerating(false)
-      }, 5000) // Simulamos 5 segundos de procesamiento
+      console.log('🚀 Iniciando generación de anuncio con datos:', formData)
+      
+      // Simular pasos de progreso
+      setTimeout(() => setGenerationStep('Analizando página web y marca...'), 1000)
+      setTimeout(() => setGenerationStep('Generando prompts creativos...'), 3000)
+      setTimeout(() => setGenerationStep('Creando imagen del anuncio...'), 5000)
+      
+      // Llamada real a la API
+      const result = await AdService.generateAd(formData)
+      
+      // Estructurar la respuesta para el frontend
+      const generatedAd = {
+        id: result.id,
+        brandAnalysis: result.brandAnalysis,
+        creativePrompts: result.creativePrompts,
+        prompt: result.creativePrompts?.finalPrompt || 'Prompt generado',
+        imageUrl: result.adImage?.url,
+        size: result.adImage?.size || formData.imageSize,
+        formData: result.formData,
+        createdAt: result.createdAt
+      }
+      
+      setGeneratedAd(generatedAd)
+      setIsGenerating(false)
+      setGenerationStep('')
+      
+      console.log('✅ Anuncio generado exitosamente:', generatedAd)
 
     } catch (err) {
-      setError('Error al generar el anuncio. Inténtalo de nuevo.')
+      console.error('❌ Error generando anuncio:', err)
+      const formattedError = AdService.formatError(err)
+      setError(formattedError)
       setIsGenerating(false)
+      setGenerationStep('')
     }
   }
 
-  const downloadImage = () => {
+  const downloadImage = async () => {
     if (generatedAd?.imageUrl) {
-      const link = document.createElement('a')
-      link.href = generatedAd.imageUrl
-      link.download = `anuncio-${formData.brandName}-${Date.now()}.jpg`
-      link.click()
+      try {
+        const filename = `anuncio-${generatedAd.formData?.productName || 'producto'}-${Date.now()}.png`
+        await AdService.downloadImage(generatedAd.imageUrl, filename)
+      } catch (error) {
+        setError('Error al descargar la imagen. Inténtalo de nuevo.')
+      }
     }
   }
 
   const generateNewAd = () => {
     setGeneratedAd(null)
     setError('')
+    setGenerationStep('')
     // Mantener el formulario para generar una nueva variación
+  }
+
+  const regenerateImage = async () => {
+    if (!generatedAd?.prompt) return
+    
+    setIsRegenerating(true)
+    setError('')
+
+    try {
+      console.log('🎨 Regenerando imagen...')
+      const result = await AdService.regenerateImage(generatedAd.prompt, generatedAd.size)
+      
+      // Actualizar solo la imagen del anuncio existente
+      setGeneratedAd(prev => ({
+        ...prev,
+        imageUrl: result.adImage.url,
+        createdAt: result.adImage.createdAt
+      }))
+      
+      setIsRegenerating(false)
+      console.log('✅ Imagen regenerada exitosamente')
+
+    } catch (err) {
+      console.error('❌ Error regenerando imagen:', err)
+      const formattedError = AdService.formatError(err)
+      setError(formattedError)
+      setIsRegenerating(false)
+    }
   }
 
   return (
@@ -225,255 +181,393 @@ const CreateAdPage = ({ user, onLogout }) => {
           </p>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8 min-h-[600px]">
-          {/* Left Column - Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-fit">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Información del Anuncio
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5" />
-                  <span>{error}</span>
+        {/* Layout Condicional */}
+        {!generatedAd ? (
+          // Wizard de Creación
+          <CreateAdWizard
+            onAdGenerated={handleAdGenerated}
+            isGenerating={isGenerating}
+            error={error}
+          />
+        ) : (
+          // Vista con Resultado
+          <div className="grid lg:grid-cols-3 gap-6 min-h-[600px]">
+            {/* Left Column - Brand Analysis */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Información del Producto */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  📝 Información del Producto
+                </h2>
+              
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600 font-medium">Producto:</span>
+                    <p className="text-gray-900 font-semibold">{generatedAd.formData?.productName}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600 font-medium">Tamaño:</span>
+                    <p className="text-gray-900">{generatedAd.size}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600 font-medium">Público Objetivo:</span>
+                    <p className="text-gray-900">{generatedAd.formData?.targetAudience}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600 font-medium">Estilo:</span>
+                    <p className="text-gray-900">{generatedAd.formData?.adStyle}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-gray-600 font-medium">Website:</span>
+                    <a 
+                      href={generatedAd.formData?.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="ml-2 text-blue-600 hover:text-blue-700 underline"
+                    >
+                      {generatedAd.formData?.website}
+                    </a>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-gray-600 font-medium">Descripción:</span>
+                    <p className="text-gray-900 mt-1">{generatedAd.formData?.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Análisis Completo de Marca */}
+              {generatedAd.brandAnalysis && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    🎯 Análisis Completo de Marca
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    {/* Información de la Marca */}
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">📊 Información de la Marca</h4>
+                      <div className="space-y-3 text-sm">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-gray-600 font-medium">Categoría:</span>
+                            <p className="text-gray-900">{generatedAd.brandAnalysis.brandInfo?.category}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Mercado Objetivo:</span>
+                            <p className="text-gray-900">{generatedAd.brandAnalysis.brandInfo?.targetMarket}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Descripción Expandida:</span>
+                          <p className="text-gray-900 mt-1">{generatedAd.brandAnalysis.brandInfo?.description}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Personalidad de Marca */}
+                    <div className="bg-purple-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">🎭 Personalidad de Marca</h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <span className="text-gray-600 font-medium">Tono de Comunicación:</span>
+                          <p className="text-gray-900">{generatedAd.brandAnalysis.brandPersonality?.tone}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Posicionamiento:</span>
+                          <p className="text-gray-900">{generatedAd.brandAnalysis.brandPersonality?.positioning}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Valores de Marca:</span>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {generatedAd.brandAnalysis.brandPersonality?.values?.map((value, index) => (
+                              <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                {value}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Identidad Visual */}
+                    {generatedAd.brandAnalysis.visualIdentity && (
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">🎨 Identidad Visual</h4>
+                        <div className="space-y-3 text-sm">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <span className="text-gray-600 font-medium">Estilo Tipográfico:</span>
+                              <p className="text-gray-900">{generatedAd.brandAnalysis.visualIdentity?.fontStyle}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 font-medium">Estilo Fotográfico:</span>
+                              <p className="text-gray-900">{generatedAd.brandAnalysis.visualIdentity?.imageStyle}</p>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Colores Primarios:</span>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {generatedAd.brandAnalysis.visualIdentity?.primaryColors?.map((color, index) => (
+                                <div key={index} className="flex items-center space-x-2">
+                                  <div 
+                                    className="w-6 h-6 rounded border border-gray-300" 
+                                    style={{ backgroundColor: color }}
+                                  ></div>
+                                  <span className="text-xs font-mono">{color}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ventajas Competitivas */}
+                    {generatedAd.brandAnalysis.competitiveAdvantages && (
+                      <div className="bg-orange-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">🏆 Ventajas Competitivas</h4>
+                        <div className="space-y-2">
+                          {generatedAd.brandAnalysis.competitiveAdvantages.map((advantage, index) => (
+                            <div key={index} className="flex items-start space-x-2">
+                              <span className="text-orange-600 font-bold text-sm">•</span>
+                              <span className="text-gray-900 text-sm">{advantage}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Perfil del Cliente */}
+                    {generatedAd.brandAnalysis.customerProfile && (
+                      <div className="bg-teal-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">👥 Perfil del Cliente</h4>
+                        <div className="space-y-3 text-sm">
+                          <div>
+                            <span className="text-gray-600 font-medium">Demografía:</span>
+                            <p className="text-gray-900">{generatedAd.brandAnalysis.customerProfile?.demographics}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Psicografía:</span>
+                            <p className="text-gray-900">{generatedAd.brandAnalysis.customerProfile?.psychographics}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Problemas (Pain Points):</span>
+                            <div className="mt-1 space-y-1">
+                              {generatedAd.brandAnalysis.customerProfile?.painPoints?.map((pain, index) => (
+                                <div key={index} className="flex items-start space-x-2">
+                                  <span className="text-red-500 text-xs">⚠️</span>
+                                  <span className="text-gray-900 text-sm">{pain}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Deseos:</span>
+                            <div className="mt-1 space-y-1">
+                              {generatedAd.brandAnalysis.customerProfile?.desires?.map((desire, index) => (
+                                <div key={index} className="flex items-start space-x-2">
+                                  <span className="text-green-500 text-xs">✨</span>
+                                  <span className="text-gray-900 text-sm">{desire}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ángulos de Marketing */}
+                    {generatedAd.brandAnalysis.marketingAngles && (
+                      <div className="bg-pink-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">📈 Ángulos de Marketing</h4>
+                        <div className="space-y-2">
+                          {generatedAd.brandAnalysis.marketingAngles.map((angle, index) => (
+                            <div key={index} className="flex items-start space-x-2">
+                              <span className="text-pink-600 font-bold text-sm">{index + 1}.</span>
+                              <span className="text-gray-900 text-sm">{angle}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Brand Name */}
-              <div>
-                <label htmlFor="brandName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre de la Marca *
-                </label>
-                <input
-                  type="text"
-                  id="brandName"
-                  name="brandName"
-                  value={formData.brandName}
-                  onChange={handleInputChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Ej: Nike, Apple, Coca-Cola..."
-                  required
-                />
-              </div>
+              {/* Prompts Creativos Detallados */}
+              {generatedAd.creativePrompts && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    ✨ Estrategia Creativa Completa
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    {/* Concepto Creativo */}
+                    <div className="bg-purple-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">💡 Concepto Creativo</h4>
+                      <p className="text-gray-900 text-sm leading-relaxed">{generatedAd.creativePrompts.conceptualIdea}</p>
+                    </div>
 
-              {/* Product Description */}
-              <div>
-                <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                  Descripción del Producto *
-                </label>
-                <textarea
-                  id="productDescription"
-                  name="productDescription"
-                  rows={4}
-                  value={formData.productDescription}
-                  onChange={handleInputChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Describe tu producto o servicio en detalle..."
-                  required
-                />
-              </div>
-
-              {/* Target Audience */}
-              <div>
-                <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
-                  Público Objetivo *
-                </label>
-                <select
-                  id="targetAudience"
-                  name="targetAudience"
-                  value={formData.targetAudience}
-                  onChange={handleInputChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  required
-                >
-                  <option value="">Selecciona tu público objetivo</option>
-                  {targetAudiences.map((audience) => (
-                    <option key={audience} value={audience}>
-                      {audience}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Ad Style */}
-              <div>
-                <label htmlFor="adStyle" className="block text-sm font-medium text-gray-700 mb-2">
-                  Estilo del Anuncio *
-                </label>
-                <select
-                  id="adStyle"
-                  name="adStyle"
-                  value={formData.adStyle}
-                  onChange={handleInputChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  required
-                >
-                  <option value="">Selecciona el estilo visual</option>
-                  {adStyles.map((style) => (
-                    <option key={style} value={style}>
-                      {style}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Image Size */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tamaño de Imagen
-                </label>
-                <div className="space-y-2">
-                  {imageSizes.map((size) => (
-                    <label
-                      key={size.value}
-                      className={`relative flex cursor-pointer rounded-lg border p-3 focus:outline-none ${
-                        formData.imageSize === size.value
-                          ? 'border-blue-600 ring-2 ring-blue-600'
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="imageSize"
-                        value={size.value}
-                        checked={formData.imageSize === size.value}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      <div className="flex flex-1 items-center justify-between">
-                        <span className="text-sm font-medium text-gray-900">
-                          {size.label}
-                        </span>
-                        <span className="text-sm text-gray-500">{size.price}</span>
+                    {/* Emociones Objetivo */}
+                    {generatedAd.creativePrompts.targetEmotions && (
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">🎭 Emociones Objetivo</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {generatedAd.creativePrompts.targetEmotions.map((emotion, index) => (
+                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                              {emotion}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
+                    )}
 
-              {/* Additional Instructions */}
-              <div>
-                <label htmlFor="additionalInstructions" className="block text-sm font-medium text-gray-700 mb-2">
-                  Instrucciones Adicionales (Opcional)
-                </label>
-                <textarea
-                  id="additionalInstructions"
-                  name="additionalInstructions"
-                  rows={3}
-                  value={formData.additionalInstructions}
-                  onChange={handleInputChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Cualquier detalle específico..."
-                />
-              </div>
+                    {/* Mensajes Clave */}
+                    {generatedAd.creativePrompts.keyMessages && (
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">🎯 Mensajes Clave</h4>
+                        <div className="space-y-2">
+                          {generatedAd.creativePrompts.keyMessages.map((message, index) => (
+                            <div key={index} className="flex items-start space-x-2">
+                              <span className="text-green-600 font-bold text-sm">{index + 1}.</span>
+                              <span className="text-gray-900 text-sm">{message}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader className="h-5 w-5 animate-spin" />
-                    <span>Generando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="h-5 w-5" />
-                    <span>Generar Anuncio</span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* Right Column - Preview */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Vista Previa del Anuncio
-            </h2>
-
-            {!generatedAd && !isGenerating ? (
-              // Empty State
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                  <ImageIcon className="h-12 w-12 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Tu anuncio aparecerá aquí
-                </h3>
-                <p className="text-gray-500 max-w-sm">
-                  Completa el formulario de la izquierda y haz clic en "Generar Anuncio" para ver el resultado.
-                </p>
-              </div>
-            ) : isGenerating ? (
-              // Loading State
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-6">
-                  <Loader className="h-8 w-8 text-white animate-spin" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Generando tu anuncio...
-                </h3>
-                <p className="text-gray-600 text-sm max-w-sm">
-                  Nuestro sistema de IA está creando el anuncio perfecto para tu marca.
-                </p>
-              </div>
-            ) : (
-              // Generated Ad Display
-              <div className="space-y-6">
-                <div className="text-center">
-                  <img
-                    src={generatedAd.imageUrl}
-                    alt={`Anuncio para ${formData.brandName}`}
-                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-                  />
-                </div>
-
-                {/* Ad Details */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 mb-3">Detalles:</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Marca:</span>
-                      <span className="font-medium">{formData.brandName}</span>
+                    {/* Elementos Visuales */}
+                    <div className="bg-orange-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">🎨 Elementos Visuales</h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <span className="text-gray-600 font-medium">Header Principal:</span>
+                          <p className="text-gray-900 font-bold text-lg mt-1">{generatedAd.creativePrompts.visualElements?.header}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Subheader:</span>
+                          <p className="text-gray-900 mt-1">{generatedAd.creativePrompts.visualElements?.subheader}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Call to Action:</span>
+                          <p className="text-gray-900 font-semibold mt-1">{generatedAd.creativePrompts.visualElements?.callToAction}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium">Estilo Visual:</span>
+                          <p className="text-gray-900 mt-1">{generatedAd.creativePrompts.visualElements?.visualStyle}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Estilo:</span>
-                      <span className="font-medium">{formData.adStyle}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Tamaño:</span>
-                      <span className="font-medium">{formData.imageSize}</span>
+
+                    {/* Prompt Final para DALL-E */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">🤖 Prompt Final para DALL-E 3</h4>
+                      <div className="bg-gray-800 text-green-400 p-4 rounded-lg font-mono text-sm max-h-40 overflow-y-auto">
+                        <pre className="whitespace-pre-wrap">{generatedAd.creativePrompts.finalPrompt}</pre>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Este es el prompt exacto que se envió a DALL-E 3 para generar la imagen
+                      </p>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                {/* Action Buttons */}
+            {/* Right Column - Preview */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                  🎨 Anuncio Generado
+                </h2>
+
+                {isGenerating ? (
+                  // Loading State
+                  <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-6">
+                      <Loader className="h-8 w-8 text-white animate-spin" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Generando tu anuncio...
+                    </h3>
+                    <p className="text-gray-600 text-sm max-w-sm mb-4">
+                      {generationStep || 'Nuestro sistema de IA está creando el anuncio perfecto para tu marca.'}
+                    </p>
+                    <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                    </div>
+                  </div>
+                ) : (
+                  // Generated Ad Display
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <img
+                        src={generatedAd.imageUrl}
+                        alt={`Anuncio para ${generatedAd.formData?.productName}`}
+                        className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <button
+                        onClick={downloadImage}
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                      >
+                        <Download className="h-5 w-5" />
+                        <span>Descargar Anuncio</span>
+                      </button>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={regenerateImage}
+                          disabled={isRegenerating}
+                          className="bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isRegenerating ? (
+                            <Loader className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <ImageIcon className="h-4 w-4" />
+                          )}
+                          <span>{isRegenerating ? 'Regenerando...' : 'Nueva Imagen'}</span>
+                        </button>
+                        
+                        <button
+                          onClick={generateNewAd}
+                          className="bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
+                        >
+                          <Wand2 className="h-5 w-5" />
+                          <span>Nuevo Anuncio</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Botones de Acción */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Acciones</h3>
                 <div className="space-y-3">
-                  <button
-                    onClick={downloadImage}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
-                  >
-                    <Download className="h-5 w-5" />
-                    <span>Descargar Anuncio</span>
-                  </button>
-                  
                   <button
                     onClick={generateNewAd}
                     className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <Wand2 className="h-5 w-5" />
-                    <span>Generar Nueva Variación</span>
+                    <span>Crear Nuevo Anuncio</span>
                   </button>
+                  
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">
+                      ¿Quieres probar con diferentes parámetros?
+                    </p>
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   )

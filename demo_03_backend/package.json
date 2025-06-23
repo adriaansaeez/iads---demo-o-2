@@ -1,0 +1,25 @@
+{
+  "name": "demo_03_backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "server": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ads", "openai", "marketing", "saas"],
+  "author": "",
+  "license": "ISC",
+  "description": "Backend para generación de anuncios con IA",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.19.2",
+    "axios": "^1.6.0",
+    "openai": "^5.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
