@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(cuid())
+  username   String    @unique
+  email      String    @unique
+  password   String
+  created_at DateTime  @default(now())
+  isActive   Boolean   @default(true)
+  role       UserRole  @default(USER)
+  updated_at DateTime  @default(now()) @updatedAt
+  products   Product[] @relation("UserProducts")
+
+  @@map("users")
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  name           String
+  desc           String?
+  website        String?
+  producto_study String?
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @default(now()) @updatedAt
+  userId         String
+  productPrompts ProductPrompt[] @relation("ProductPrompts")
+  user           User            @relation("UserProducts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("products")
+}
+
+model Prompt {
+  id                     String          @id @default(cuid())
+  created_at             DateTime        @default(now())
+  description            String?
+  title                  String?
+  updated_at             DateTime        @default(now()) @updatedAt
+  adStyle                String?
+  additionalInstructions String?
+  brandAnalysis          Json?
+  cleanedPrompt          String?
+  colorScheme            String?
+  creativePrompts        Json?
+  errorMessage           String?
+  finalPrompt            String
+  generationStatus       String          @default("pending")
+  imageModel             String?
+  imageQuality           String?
+  imageSize              String?
+  imageUrl               String?
+  originalFormData       Json?
+  processingTime         Int?
+  targetAudience         String?
+  typography             String?
+  productPrompts         ProductPrompt[] @relation("PromptProducts")
+
+  @@map("prompts")
+}
+
+model ProductPrompt {
+  id         String   @id @default(cuid())
+  productId  String
+  promptId   String
+  created_at DateTime @default(now())
+  product    Product  @relation("ProductPrompts", fields: [productId], references: [id], onDelete: Cascade)
+  prompt     Prompt   @relation("PromptProducts", fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, promptId])
+  @@map("product_prompts")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  MANAGER
+}
